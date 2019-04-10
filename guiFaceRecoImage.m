@@ -104,6 +104,8 @@ function filteredImgButton_Callback(hObject, eventdata, handles)
         filteredImg = filtering.applyGrayscale(img);
     elseif(strcmp(choice, 'Histogram Eq'))
         filteredImg = filtering.applyHistEq(img);
+    elseif(strcmp(choice, 'Sobel'))
+        filteredImg = filtering.applySobel(img);
     end
     
     axes(handles.filteredAxe);
