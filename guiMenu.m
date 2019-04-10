@@ -81,32 +81,17 @@ function faceRecoImgButton_Callback(hObject, eventdata, handles)
 % hObject    handle to faceRecoImgButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-img = imread('sample.png');
-    R=img(:, :, 1);
-    G=img(:, :, 2);
-    B=img(:, :, 3);
-         
-    height = size(img, 1);
-    width = size(img, 2);
-    grayImg = zeros(height, width, 'uint8');
-
-    for i=1:height
-        for j=1:width
-            grayImg(i, j)=(R(i, j)*0.2989)+(G(i, j)*0.5870)+(B(i, j)*0.114);
-        end
-    end   
-% histEqImg = tiHistEq(img);
-figure, imshow(grayImg);
+guiFaceRecoImage
 
 % --- Executes on button press in faceRecoVideoButton.
 function faceRecoVideoButton_Callback(hObject, eventdata, handles)
 % hObject    handle to faceRecoVideoButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-toto
 
 % --- Executes on button press in quitButton.
 function quitButton_Callback(hObject, eventdata, handles)
 % hObject    handle to quitButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+close all
