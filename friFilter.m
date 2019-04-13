@@ -54,17 +54,17 @@ classdef friFilter
         
         
         function sobelImg = applySobel(img)
-            img = double(rgb2gray(img));
+            img = double(rgb2gray(img)); %% applyGrayscale(img);
             kernelX = [ 
                 -1, 0, 1;
                 -2, 0, 2;
                 -1, 0, 1
             ];
 
-            kernelY = [
-                1, 2, 1;
+            kernelY = [ 
+                -1, -2, -1;
                 0, 0, 0;
-                -1, 0, 1
+                1, 2, 1
             ];
 
             height = size(img,1);
@@ -75,31 +75,97 @@ classdef friFilter
             for i = 2:height - 1
                 for j = 2:width - 1
                     for k = 1:channel
-                        magx = 0;
-                        magy = 0;
+                        Gx = 0;
+                        Gy = 0;
                         for a = 1:3
                             for b = 1:3
-                                magx = magx + (kernelX(a, b) * img(i + a - 2, j + b - 2, k));
-                                magy = magy + (kernelY(a, b) * img(i + a - 2, j + b - 2, k));
+                                Gx = Gx + (kernelX(a, b) * img(i + a - 2, j + b - 2, k));
+                                Gy = Gy + (kernelY(a, b) * img(i + a - 2, j + b - 2, k));
                             end
                         end
-                        sobelImg(i,j,k) = abs(magx); % + abs(magy); % sqrt(magx^2 + magy^2);
+                        sobelImg(i,j,k) = abs(Gx) + abs(Gy); % sqrt(Gx^2 + Gy^2);
                     end
                 end
             end
 
             sobelImg = abs(sobelImg)/255;
 
-            for i = 1:height - 1
-                for j= 1:width - 1
-                    if sobelImg(i, j) > 0.5
-                        sobelImg(i, j) = 1;
-                    else
-                        sobelImg(i, j) = 0;
+            %for i = 1:height - 1
+            %    for j= 1:width - 1
+            %        if sobelImg(i, j) > 0.5
+            %            sobelImg(i, j) = 1;
+            %        else
+            %            sobelImg(i, j) = 0;
+            %        end
+            %    end
+            %end
+        end
+        
+        function prewittImg = applyPrewitt(img)
+            img = double(rgb2gray(img));
+            kernelX = 1/3 * [-1, 0, 1;  -1, 0, 1; -1, 0, 1];
+            kernelY = 1/3 * [-1, -1, -1;  0, 0, 0; 1, 1, 1];
+
+            height = size(img,1);
+            width = size(img,2);
+            channel = size(img,3);
+            prewittImg = img;
+
+            for i = 2:height-1
+                for j = 2:width-1
+                    for k = 1:channel
+                        Gx = 0;
+                        Gy = 0;
+                        for a = 1:3
+                            for b = 1:3
+                                Gx = Gx + (kernelX(a, b) * img(i + a - 2, j + b - 2, k));
+                                Gy = Gy + (kernelY(a, b) * img(i + a - 2, j + b - 2, k));
+                            end
+                        end
+                        prewittImg(i,j,k) = sqrt(Gx.^2+ Gy.^2); % abs(Gx) + abs(Gy);
                     end
                 end
             end
-            % figure, imshow(sobelImg);
+
+            prewittImg = abs(prewittImg)/255;
+        end
+    
+        function sepiaImg = applySepia(img)
+            sepiaImg = img;
+            R=img(:, :, 1);
+            G=img(:, :, 2);
+            B=img(:, :, 3);
+
+            newR = (R * .393) + (G * .769) + (B * .189);
+            newG = (R * .349) + (G * .686) + (B * .168);
+            newB = (R * .272) + (G * .534) + (B * .131);
+
+            height = size(img, 1);
+            width = size(img, 2);
+            sepiaImg(:, :, 1) = newR;
+            sepiaImg(:, :, 2) = newG;
+            sepiaImg(:, :, 3) = newB;
+        end
+
+        function brightnessImg = applyBrightness(img, value)
+            if value < 0
+                value = 30;
+            end
+
+            brightnessImg = img + value;
+        end
+
+        function averageImg = applyAverage(img)
+            height = size(img, 1);
+            width = size(img, 2);
+            averageImg = zeros(height, width, 'uint8');
+            % averageImg = double(averageImg);
+
+            for i = 2:height-1
+                for j = 2:width-1
+                    averageImg(i, j) = (img(i - 1, j - 1) + img(i - 1, j) + img(i - 1, j + 1) + img(i + 1, j - 1) + img(i + 1, j) + img(i + 1, j + 1) + img(i, j) + img(i, j - 1) + img(i, j + 1)) / 9;
+                end
+            end
         end
     end
 end

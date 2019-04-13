@@ -106,8 +106,16 @@ function filteredImgButton_Callback(hObject, eventdata, handles)
         filteredImg = filtering.applyHistEq(img);
     elseif(strcmp(choice, 'Sobel'))
         filteredImg = filtering.applySobel(img);
+    elseif(strcmp(choice, 'Prewitt'))
+        filteredImg = filtering.applyPrewitt(img);
+    elseif(strcmp(choice, 'Sepia'))
+        filteredImg = filtering.applySepia(img);
+    elseif(strcmp(choice, 'Brightness'))
+        filteredImg = filtering.applyBrightness(img, 50);
+    elseif(strcmp(choice, 'Average'))
+        filteredImg = filtering.applyAverage(img);
     end
-    
+
     axes(handles.filteredAxe);
     imshow(filteredImg);
     handles.filteredImg = filteredImg;
