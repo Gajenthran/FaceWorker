@@ -1,4 +1,4 @@
-classdef aaReco
+classdef friEigen
 	properties
 		faceDatabasePath;
 		faceDatabase;
@@ -13,7 +13,7 @@ classdef aaReco
 	end
 
 	methods
-        function obj = aaReco(faceDatabasePath, testPath) 
+        function obj = friEigen(faceDatabasePath, testPath) 
             obj.faceDatabasePath = faceDatabasePath;
             obj.testPath = testPath;
             obj.fileCreated = 0;

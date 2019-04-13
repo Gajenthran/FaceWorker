@@ -22,7 +22,7 @@ function varargout = guiFaceRecoImage(varargin)
 
 % Edit the above text to modify the response to help guiFaceRecoImage
 
-% Last Modified by GUIDE v2.5 10-Apr-2019 14:07:24
+% Last Modified by GUIDE v2.5 14-Apr-2019 00:07:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,8 +79,11 @@ function originalImgButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     global img
-    filename = uigetfile({'*.*';'*jpg';});
-    img = imread(filename);
+    global imagefilename
+    [filename, pathname] = uigetfile({'*.tif;*.jpg;*.png;*.gif*;*.pgm;*.jpeg','Select a file'});
+    imagefilename = fullfile(pathname, filename);
+    [filepath, name, ext] = fileparts(filename);
+    img = imread(imagefilename);
     axes(handles.originalAxe);
     imshow(img);
     handles.img = img;
@@ -147,10 +150,6 @@ function filteredImgButton_CreateFcn(hObject, eventdata, handles)
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 
 
 function recognizedImgButton_Callback(hObject, eventdata, handles)
@@ -173,3 +172,23 @@ function recognizedImgButton_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+% --- Executes on button press in recognizedImageButton.
+function recognizedImageButton_Callback(hObject, eventdata, handles)
+% hObject    handle to recognizedImageButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in recognizeImageButton.
+function recognizeImageButton_Callback(hObject, eventdata, handles)
+% hObject    handle to recognizeImageButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    global imagefilename;
+    friEig = friEigen('Dataset', imagefilename);
+    friEig = friEig.recognize();
+    axes(handles.recognizedAxe);
+    imshow(friEig.matchedFace);
+    handles.friEig.matchFace = friEig.matchedFace;
+    guidata(hObject, handles);
