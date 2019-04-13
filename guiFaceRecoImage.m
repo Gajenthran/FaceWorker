@@ -110,10 +110,28 @@ function filteredImgButton_Callback(hObject, eventdata, handles)
         filteredImg = filtering.applyPrewitt(img);
     elseif(strcmp(choice, 'Sepia'))
         filteredImg = filtering.applySepia(img);
+    elseif(strcmp(choice, 'Invert'))
+        filteredImg = filtering.applyInvert(img);
+    elseif(strcmp(choice, 'Swirl'))
+        filteredImg = filtering.applySwirl(img, 50);
+    elseif(strcmp(choice, 'Bilateral'))
+        filteredImg = filtering.applyBilateralRGB(img);
+%    elseif(strcmp(choice, 'Wave'))
+%        filteredImg = filtering.applyWave(img);
+    elseif(strcmp(choice, 'Laplacian'))
+        filteredImg = filtering.applyLaplacian(img);
     elseif(strcmp(choice, 'Brightness'))
         filteredImg = filtering.applyBrightness(img, 50);
     elseif(strcmp(choice, 'Average'))
+        % filteredImg = imnoise(img, 'salt & pepper', 0.02);
         filteredImg = filtering.applyAverage(img);
+    elseif(strcmp(choice, 'Median'))
+        % filteredImg = imnoise(img, 'salt & pepper', 0.02);
+        filteredImg = filtering.applyMedian(img);
+    elseif(strcmp(choice, 'Binary'))
+        filteredImg = filtering.applyBinary(img);
+    elseif(strcmp(choice, 'Complement Bin'))
+        filteredImg = filtering.applyComplementBinary(img);
     end
 
     axes(handles.filteredAxe);

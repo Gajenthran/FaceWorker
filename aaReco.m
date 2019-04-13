@@ -4,20 +4,10 @@ loaded_Image=load_database();
 % random_Image=loaded_Image(:,random_Index);
 ObjectDetector = vision.CascadeObjectDetector;
 pathName = 'test.jpg';
-[filepath, name, ext] = fileparts(pathName);
-fileCreated = 0;
-if strcmp(ext, '.pgm') == false
-	file2 = strrep(pathName, ext,'.pgm');
-	copyfile(pathName, file2);
-    pathName = file2;
-    fileCreated = 1;
-end
 
-randomImage = (imread(pathName));
-
-if(size(randomImage, 3) > 1)
-	randomImage = rgb2gray(randomImage);
-end
+[pathName, fileCreated] = convert2pgm(pathName);
+randomImage = imread(pathName);
+randomImage = friFilter.applyGrayscale(randomImage);
 
 inObject = step(ObjectDetector, randomImage);
 
@@ -75,6 +65,18 @@ if fileCreated == 1
     delete(pathName);
 end
 
+function [outputFile, fileCreated] = convert2pgm(filename)
+	[filepath, name, ext] = fileparts(filename);
+	fileCreated = 0;
+	outputFile = filename;
+	if strcmp(ext, '.pgm') == false
+		pgmFile = strrep(filename, ext,'.pgm');
+		copyfile(filename, pgmFile);
+	    outputFile = pgmFile;
+	    fileCreated = 1;
+	end
+end
+        
 function output_value = load_database()
 persistent loaded;
 persistent numeric_Image;
