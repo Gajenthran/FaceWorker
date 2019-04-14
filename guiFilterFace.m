@@ -1,3 +1,7 @@
+% GUI pour les filtres de l'application qui contient :
+% - Selection d'une image
+% - Sauvegarde de l'image selectionnee
+% - Buttons pour les filtres
 function varargout = guiFilterFace(varargin)
 % GUIFILTERFACE MATLAB code for guiFilterFace.fig
 %      GUIFILTERFACE, by itself, creates a new GUIFILTERFACE or raises the existing
@@ -43,7 +47,7 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
+% Initiliase les filtres
 % --- Executes just before guiFilterFace is made visible.
 function guiFilterFace_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -75,7 +79,7 @@ function varargout = guiFilterFace_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
+% Selectionne une image selon les formats choisis
 % --- Executes on button press in selectImageButton.
 function selectImageButton_Callback(hObject, eventdata, handles)
 % hObject    handle to selectImageButton (see GCBO)
@@ -95,8 +99,7 @@ function selectImageButton_Callback(hObject, eventdata, handles)
     guidata(hObject, handles);
     filteredImg = img;
 
-
-
+% Sauvegarde l'image selectionnee en rajoutant le suffixe 'fw'
 % --- Executes on button press in SaveImageButton.
 function SaveImageButton_Callback(hObject, eventdata, handles)
 % hObject    handle to SaveImageButton (see GCBO)
@@ -106,6 +109,7 @@ function SaveImageButton_Callback(hObject, eventdata, handles)
     global filteredImg;
     imwrite(filteredImg, strcat('fw', filename));
 
+% Revient a l'image originale
 % --- Executes on button press in originalButton.
 function originalButton_Callback(hObject, eventdata, handles)
 % hObject    handle to originalButton (see GCBO)
@@ -120,6 +124,7 @@ function originalButton_Callback(hObject, eventdata, handles)
     handles.filteredImg = filteredImg;
     guidata(hObject, handles);
 
+% Applique le filtre de Sobel sur l'image
 % --- Executes on button press in sobelButton.
 function sobelButton_Callback(hObject, eventdata, handles)
 % hObject    handle to sobelButton (see GCBO)
@@ -140,6 +145,7 @@ function sobelButton_Callback(hObject, eventdata, handles)
     handles.filteredImg = filteredImg;
     guidata(hObject, handles);
 
+% Applique le filtre de Prewitt sur l'image
 % --- Executes on button press in prewittButton.
 function prewittButton_Callback(hObject, eventdata, handles)
 % hObject    handle to prewittButton (see GCBO)
@@ -160,6 +166,7 @@ function prewittButton_Callback(hObject, eventdata, handles)
     handles.filteredImg = filteredImg;
     guidata(hObject, handles); 
 
+% Applique l'egalisateur d'histogramme sur l'image
 % --- Executes on button press in heqButton.
 function heqButton_Callback(hObject, eventdata, handles)
 % hObject    handle to heqButton (see GCBO)
@@ -180,7 +187,7 @@ function heqButton_Callback(hObject, eventdata, handles)
     handles.filteredImg = filteredImg;
     guidata(hObject, handles); 
 
-
+% Inverse les couleurs de l'image
 % --- Executes on button press in invertButton.
 function invertButton_Callback(hObject, eventdata, handles)
 % hObject    handle to invertButton (see GCBO)
@@ -201,7 +208,7 @@ function invertButton_Callback(hObject, eventdata, handles)
     handles.filteredImg = filteredImg;
     guidata(hObject, handles); 
 
-
+% Transforme l'image en nuance de gris
 % --- Executes on button press in grayscaleButton.
 function grayscaleButton_Callback(hObject, eventdata, handles)
 % hObject    handle to grayscaleButton (see GCBO)
@@ -222,7 +229,7 @@ function grayscaleButton_Callback(hObject, eventdata, handles)
     handles.filteredImg = filteredImg;
     guidata(hObject, handles); 
 
-
+% Applique le filtre moyenneur sur l'image
 % --- Executes on button press in averageButton.
 function averageButton_Callback(hObject, eventdata, handles)
 % hObject    handle to averageButton (see GCBO)
@@ -244,7 +251,7 @@ function averageButton_Callback(hObject, eventdata, handles)
     handles.filteredImg = filteredImg;
     guidata(hObject, handles); 
 
-
+% Applique le filtre median sur l'image
 % --- Executes on button press in medianButton.
 function medianButton_Callback(hObject, eventdata, handles)
 % hObject    handle to medianButton (see GCBO)
@@ -266,7 +273,8 @@ function medianButton_Callback(hObject, eventdata, handles)
     handles.filteredImg = filteredImg;
     guidata(hObject, handles); 
 
-
+% Applique d'autres filtres sur l'image
+% Choix multiples de filtre a l'aide d'un popupbutton
 % --- Executes on selection change in otherFiltersPopup.
 function otherFiltersPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to otherFiltersPopup (see GCBO)
@@ -324,7 +332,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
+% Case permettant de savoir si il faut cumuler ou pas les filtres
+% Utilisation de checkbox pour representer une valeur booleenne
 % --- Executes on button press in cumulateButton.
 function cumulateButton_Callback(hObject, eventdata, handles)
 % hObject    handle to cumulateButton (see GCBO)

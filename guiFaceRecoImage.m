@@ -1,3 +1,7 @@
+% GUI pour la reconnaissance faciale (image) de l'application qui contient :
+% - Selection d'une image
+% - Application des filtres
+% - Reconnaissance de l'image selectionnee dans la BDD
 function varargout = guiFaceRecoImage(varargin)
 % GUIFACERECOIMAGE MATLAB code for guiFaceRecoImage.fig
 %      GUIFACERECOIMAGE, by itself, creates a new GUIFACERECOIMAGE or raises the existing

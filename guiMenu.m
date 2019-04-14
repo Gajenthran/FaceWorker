@@ -1,3 +1,8 @@
+% GUI pour le menu de l'application qui contient : 
+% - filtre
+% - reconnaissance faciale (image)
+% - reconnaissance faciale (video)
+% - quitter
 function varargout = guiMenu(varargin)
 % GUIMENU MATLAB code for guiMenu.fig
 %      GUIMENU, by itself, creates a new GUIMENU or raises the existing
@@ -72,7 +77,7 @@ function varargout = guiMenu_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
+% Option pour se diriger vers la fenetre s'occupant des filtres
 % --- Executes on button press in filterButton.
 function filterButton_Callback(hObject, eventdata, handles)
 % hObject    handle to filterButton (see GCBO)
@@ -80,7 +85,7 @@ function filterButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
     guiFilterFace;
 
-
+% Option pour se diriger vers la fenetre s'occupant de la reconnaissance faciale (image)
 % --- Executes on button press in IRecognitionButton.
 function IRecognitionButton_Callback(hObject, eventdata, handles)
 % hObject    handle to IRecognitionButton (see GCBO)
@@ -88,13 +93,15 @@ function IRecognitionButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
     guiFaceRecoImage;
 
+% Option pour se diriger vers la fenetre s'occupant de la reconnaissance facile (video)
+% Pour l'instant, pas realiser
 % --- Executes on button press in VRecognitionButton.
 function VRecognitionButton_Callback(hObject, eventdata, handles)
 % hObject    handle to VRecognitionButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+% Option pour quitter l'application
 % --- Executes on button press in quitButton.
 function quitButton_Callback(hObject, eventdata, handles)
 % hObject    handle to quitButton (see GCBO)
