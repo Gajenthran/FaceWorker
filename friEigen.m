@@ -62,8 +62,8 @@ classdef friEigen
 
 		function destImg = transformImage(obj, srcImg)
 			srcImg = friFilter.applyGrayscale(srcImg); % A VERIFIER
-			srcImg = obj.cropFace(srcImg);
-			srcImg = imresize(srcImg, [112, 92]);
+			% srcImg = obj.cropFace(srcImg);
+			srcImg = imresize(srcImg, [92, 112]);
 			srcImg = reshape(srcImg, size(srcImg,1) * size(srcImg,2),1);
 			destImg = uint8(srcImg);
 		end
@@ -77,6 +77,8 @@ classdef friEigen
 				disp("It is not a face !");
 				close all;
 			elseif isempty(inObject) == false && height > 150 && width > 100
+                inObject(1, 1) = inObject(1, 1) + 100;
+                inObject(1, 2) = inObject(1, 2) + 100;
 				destImg = imcrop(srcImg, inObject(1, :));
 			end
 		end
@@ -137,8 +139,6 @@ classdef friEigen
 		end
 	end
 end
-% Croping rectangle
-% Face cropping, Color image, Dimensions image, Values, Name
 
 % faceDatabase = loadFaceDatabase('Dataset');
 % 
