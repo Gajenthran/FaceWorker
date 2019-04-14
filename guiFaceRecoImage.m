@@ -22,7 +22,7 @@ function varargout = guiFaceRecoImage(varargin)
 
 % Edit the above text to modify the response to help guiFaceRecoImage
 
-% Last Modified by GUIDE v2.5 14-Apr-2019 00:07:34
+% Last Modified by GUIDE v2.5 14-Apr-2019 17:10:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -119,8 +119,6 @@ function filteredImgButton_Callback(hObject, eventdata, handles)
         filteredImg = filtering.applySwirl(img, 50);
     elseif(strcmp(choice, 'Bilateral'))
         filteredImg = filtering.applyBilateralRGB(img);
-%    elseif(strcmp(choice, 'Wave'))
-%        filteredImg = filtering.applyWave(img);
     elseif(strcmp(choice, 'Laplacian'))
         filteredImg = filtering.applyLaplacian(img);
     elseif(strcmp(choice, 'Brightness'))
@@ -135,6 +133,10 @@ function filteredImgButton_Callback(hObject, eventdata, handles)
         filteredImg = filtering.applyBinary(img);
     elseif(strcmp(choice, 'Complement Bin'))
         filteredImg = filtering.applyComplementBinary(img);
+    elseif(strcmp(choice, 'Mirror'))
+        filteredImg = filtering.applyMirror(img);
+    elseif(strcmp(choice, 'Sharpen'))
+        filteredImg = filtering.applySharpen(img);
     end
 
     axes(handles.filteredAxe);

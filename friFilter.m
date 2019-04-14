@@ -183,7 +183,7 @@ classdef friFilter
             for i = 2:height-1
                 for j= 2:width-1
                     G = 0;
-                    for a =1:3
+                    for a = 1:3
                         for b = 1:3
                             G = G + img(i + a - 2, j + b - 2) * kernel(a, b);
                         end
@@ -193,6 +193,30 @@ classdef friFilter
             end
         end
 
+
+        function sharpenImg = applySharpen(img)
+            img = double(friFilter.applyGrayscale(img)) % rgb2gray(img);
+            height = size(img, 1);
+            width = size(img, 2);
+            sharpenImg = img;
+            kernel  = [ 
+                0, -1, 0;
+                -1, 5, -1;
+                0, -1, 0;
+            ];
+
+            for i = 2:height-1
+                for j= 2:width-1
+                    G = 0;
+                    for a =1:3
+                        for b = 1:3
+                            G = G + img(i + a - 2, j + b - 2) * kernel(a, b);
+                        end
+                    end
+                    sharpenImg(i, j) = G;
+                end
+            end
+        end
 
         function averageImg = applyAverage(img)
             img = double(friFilter.applyGrayscale(img));
@@ -362,22 +386,6 @@ classdef friFilter
             bImg(:, :, 2) = newG;
             bImg(:, :, 3) = newB;
         end
-
-
-        function dilationImg = applyDilation(img)
-            img = double(friFilter.applyGrayscale(img));
-            height = size(img, 1);
-            width = size(img, 2);
-            dilationImg = zeros(height, width);
-
-            for i = 1:height - 2
-                for j = 1:width - 2
-                    if img(i, j+1) == 1 || img(i+1,j) == 1 || img(i+1, j+1) == 1 || img(i+2, j+1) == 1 || img(i+1, j+2) == 1
-                        dilationImg(i, j) = 1;
-                    end
-                end
-            end
-        end
  
         function binaryImg = applyBinary(img)
             height = size(img, 1); 
@@ -389,14 +397,14 @@ classdef friFilter
             img = double(img);
             sumGray = 0; 
 
-            for i= 1:height 
-                for j= 1:width 
+            for i = 1:height 
+                for j = 1:width 
                     sumGray = sumGray + img(i, j); 
                 end
              end
 
             threshold = sumGray/(width*height); 
-            binaryImg=zeros(height, width); 
+            binaryImg = zeros(height, width); 
    
             for i = 1:height 
                 for j = 1:width 
@@ -409,5 +417,19 @@ classdef friFilter
             end
         end
         
+        function mirrorImg = applyMirror(img)
+            height = size(img, 1);
+            width = size(img, 2);
+
+            for i = 1:height
+                w = width;
+                for j = 1:width
+                    if w > 1
+                        w = w - 1;
+                    end
+                    mirrorImg(i, j, :) = img(i, w, :);
+                end
+            end
+        end
     end
 end

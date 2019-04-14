@@ -13,15 +13,15 @@ classdef friEigen
 	end
 
 	methods
-        function obj = friEigen(faceDatabasePath, testPath) 
-            obj.faceDatabasePath = faceDatabasePath;
-            obj.testPath = testPath;
-            obj.fileCreated = 0;
-        	obj.faceDatabase = obj.loadFaceDatabase(obj.faceDatabasePath);
-        	[obj.testImage, obj.testPath, obj.fileCreated] = obj.loadTestImage(obj.testPath);
-        end
-        
-        function obj = recognize(obj)
+		function obj = friEigen(faceDatabasePath, testPath) 
+			obj.faceDatabasePath = faceDatabasePath;
+			obj.testPath = testPath;
+			obj.fileCreated = 0;
+			obj.faceDatabase = obj.loadFaceDatabase(obj.faceDatabasePath);
+			[obj.testImage, obj.testPath, obj.fileCreated] = obj.loadTestImage(obj.testPath);
+		end
+		
+		function obj = recognize(obj)
 			rImgSignature = 20;
 			faceImages = uint8(ones(1,size(obj.faceDatabase,2)));
 			obj.meanValue = uint8(mean(obj.faceDatabase,2));
@@ -41,11 +41,11 @@ classdef friEigen
 			obj.matchedFaceIndex = obj.getMatchedFace(size(obj.faceDatabase, 2), obj.faceDatabaseSignature, s);
 			obj.matchedFace = reshape(obj.faceDatabase(:,obj.matchedFaceIndex), 112, 92);
 			obj.deleteCreatedFile(obj.fileCreated, obj.testPath);
-        end
+		end
 
-    end
-    
-    methods (Access = 'private')
+	end
+	
+	methods (Access = 'private')
 		function matchedFaceIndex = getMatchedFace(obj, N, faceDbS, s)
 			weightFaces = [];
 			for i = 1:N
@@ -61,10 +61,10 @@ classdef friEigen
 		end
 
 		function destImg = transformImage(obj, srcImg)
-			srcImg = friFilter.applyGrayscale(srcImg); % A VERIFIER
+			srcImg = friFilter.applyGrayscale(srcImg);
 			% srcImg = obj.cropFace(srcImg);
-			srcImg = imresize(srcImg, [92, 112]);
-			srcImg = reshape(srcImg, size(srcImg,1) * size(srcImg,2),1);
+			srcImg = imresize(srcImg, [112, 92]);
+			srcImg = reshape(srcImg, size(srcImg,1) * size(srcImg,2), 1);
 			destImg = uint8(srcImg);
 		end
 
@@ -76,9 +76,7 @@ classdef friEigen
 			if isempty(inObject) == true && height ~= 112 && width ~= 92
 				disp("It is not a face !");
 				close all;
-			elseif isempty(inObject) == false && height > 150 && width > 100
-                inObject(1, 1) = inObject(1, 1) + 100;
-                inObject(1, 2) = inObject(1, 2) + 100;
+			elseif isempty(inObject) == false && height > 111 && width > 90
 				destImg = imcrop(srcImg, inObject(1, :));
 			end
 		end
@@ -90,19 +88,52 @@ classdef friEigen
 			if strcmp(ext, '.pgm') == false
 				pgmFile = strrep(filename, ext,'.pgm');
 				copyfile(filename, pgmFile);
-			    outputFile = pgmFile;
-			    fileCreated = 1;
+				outputFile = pgmFile;
+				fileCreated = 1;
 			end
 		end
-		      
+			  
 		function [testImage, testPath, fileCreated] = loadTestImage(obj, pathName)
 			[testPath, fileCreated] = obj.convert2pgm(pathName);
 			testImage = imread(testPath);
 			testImage = obj.transformImage(testImage);
 		end
 
-		  
 		function faceDatabase = loadFaceDatabase(obj, pathName)
+			persistent databaseCreated;
+			persistent images;
+
+			imgW = 92;
+			imgH = 112;
+
+			if(isempty(databaseCreated))
+				faceSet = imageSet(pathName, 'recursive');
+				dbFolder = dir;
+				nbFolder = length(dbFolder)-2;
+				images = zeros(imgW * imgH, nbFolder)
+
+				for i= 1:size(faceSet,2)
+					for j = 1:faceSet(i).Count
+						img = read(faceSet(i), j);
+						[height, width] = size(img);
+						if size(img, 3) > 1
+							img = rgb2gray(img);
+						end
+						% img = obj.cropFace(img);
+						if height ~= 112 && width ~= 92
+							img = imresize(img, [112, 92]);
+						end
+
+						images(:,(i-1)*10+j) = reshape(img, size(img,1)*size(img,2), 1);
+					end
+				end
+				images = uint8(images);
+			end
+			databaseCreated = 1;
+			faceDatabase = images;
+		end
+
+		function faceDatabase = loadFaceDatabaseCD(obj, pathName)
 			persistent databaseCreated;
 			persistent images;
 
@@ -111,26 +142,27 @@ classdef friEigen
 			trainingFace = 10;
 
 			if(isempty(databaseCreated))
-			    cd(pathName);
+				cd(pathName);
 				dbFolder = dir;
 				nbFolder = length(dbFolder)-2;
 				images = zeros(imgH * imgW, nbFolder);
 
 				for i = 1:nbFolder
-					cd(strcat('s',num2str(i)));
+					cd(strcat('s', num2str(i)));
 
 					for j = 1:trainingFace
-						img = imread(strcat(num2str(j),'.pgm'));
+						img = imread(strcat(num2str(j), '.pgm'));
 						if size(img, 3) > 1
 							img = rgb2gray(img);
 						end
+
 						images(:,(i-1)*10+j) = reshape(img, size(img,1)*size(img,2), 1);
 					end
 
 					cd ..;
-			    end
+				end
 
-			    cd ..;
+				cd ..;
 				images = uint8(images);
 			end
 
@@ -156,7 +188,7 @@ end
 % 
 % faceDatabaseSignature = zeros(size(faceDatabase,2), rImgSignature);
 % for i = 1:size(faceDatabase, 2)
-% 	faceDatabaseSignature(i,:) = single(meanDatabase(:,i))'*V;
+%   faceDatabaseSignature(i,:) = single(meanDatabase(:,i))'*V;
 % end
 % 
 % subplot(121);
@@ -174,91 +206,91 @@ end
 
 
 % function matchFaceIndex = getMatchedFace(N, faceDbS, s)
-% 	weightFaces = [];
-% 	for i = 1:N
-% 		weightFaces = [weightFaces, norm(faceDbS(i, :)-s, 2)];
-% 	end
-% 	[minWeight, matchFaceIndex] = min(weightFaces);
+%   weightFaces = [];
+%   for i = 1:N
+%       weightFaces = [weightFaces, norm(faceDbS(i, :)-s, 2)];
+%   end
+%   [minWeight, matchFaceIndex] = min(weightFaces);
 % end
 % 
 % function [] = deleteCreatedFile(fileCreated, pathName)
-% 	if fileCreated == 1
-% 		delete(pathName)
-% 	end
+%   if fileCreated == 1
+%       delete(pathName)
+%   end
 % end
 % 
 % function destImg = transformImage(srcImg)
-% 	srcImg = friFilter.applyGrayscale(srcImg); % A VERIFIER
-% 	srcImg = cropFace(srcImg);
-% 	srcImg = imresize(srcImg, [112, 92]);
-% 	srcImg = reshape(srcImg, size(srcImg,1) * size(srcImg,2),1);
-% 	destImg = uint8(srcImg);
+%   srcImg = friFilter.applyGrayscale(srcImg); % A VERIFIER
+%   srcImg = cropFace(srcImg);
+%   srcImg = imresize(srcImg, [112, 92]);
+%   srcImg = reshape(srcImg, size(srcImg,1) * size(srcImg,2),1);
+%   destImg = uint8(srcImg);
 % end
 % 
 % function destImg = cropFace(srcImg)
-% 	ObjectDetector = vision.CascadeObjectDetector;
-% 	inObject = step(ObjectDetector, srcImg);
-% 	[height, width] = size(srcImg);
-% 	destImg = srcImg;
-% 	if isempty(inObject) == true && height ~= 112 && width ~= 92
-% 		disp("It is not a face !");
-% 		close all;
-% 	elseif isempty(inObject) == false && height > 150 && width > 100
-% 		destImg = imcrop(srcImg, inObject(1, :));
-% 	end
+%   ObjectDetector = vision.CascadeObjectDetector;
+%   inObject = step(ObjectDetector, srcImg);
+%   [height, width] = size(srcImg);
+%   destImg = srcImg;
+%   if isempty(inObject) == true && height ~= 112 && width ~= 92
+%       disp("It is not a face !");
+%       close all;
+%   elseif isempty(inObject) == false && height > 150 && width > 100
+%       destImg = imcrop(srcImg, inObject(1, :));
+%   end
 % end
 % 
 % function [outputFile, fileCreated] = convert2pgm(filename)
-% 	[filepath, name, ext] = fileparts(filename);
-% 	fileCreated = 0;
-% 	outputFile = filename;
-% 	if strcmp(ext, '.pgm') == false
-% 		pgmFile = strrep(filename, ext,'.pgm');
-% 		copyfile(filename, pgmFile);
-% 	    outputFile = pgmFile;
-% 	    fileCreated = 1;
-% 	end
+%   [filepath, name, ext] = fileparts(filename);
+%   fileCreated = 0;
+%   outputFile = filename;
+%   if strcmp(ext, '.pgm') == false
+%       pgmFile = strrep(filename, ext,'.pgm');
+%       copyfile(filename, pgmFile);
+%       outputFile = pgmFile;
+%       fileCreated = 1;
+%   end
 % end
 %       
 % function [testImage, testPath, fileCreated] = loadTestImage(pathName)
-% 	[testPath, fileCreated] = convert2pgm(pathName);
-% 	testImage = imread(testPath);
-% 	testImage = transformImage(testImage);
+%   [testPath, fileCreated] = convert2pgm(pathName);
+%   testImage = imread(testPath);
+%   testImage = transformImage(testImage);
 % end
 % 
 %   
 % function faceDatabase = loadFaceDatabase(pathName)
-% 	persistent databaseCreated;
-% 	persistent images;
+%   persistent databaseCreated;
+%   persistent images;
 % 
-% 	imgW = 92; 
-% 	imgH = 112;
-% 	trainingFace = 10;
+%   imgW = 92; 
+%   imgH = 112;
+%   trainingFace = 10;
 % 
-% 	if(isempty(databaseCreated))
-% 	    cd(pathName);
-% 		dbFolder = dir;
-% 		nbFolder = length(dbFolder)-2;
-% 		images = zeros(imgH * imgW, nbFolder);
+%   if(isempty(databaseCreated))
+%       cd(pathName);
+%       dbFolder = dir;
+%       nbFolder = length(dbFolder)-2;
+%       images = zeros(imgH * imgW, nbFolder);
 % 
-% 		for i = 1:nbFolder
-% 			cd(strcat('s',num2str(i)));
+%       for i = 1:nbFolder
+%           cd(strcat('s',num2str(i)));
 % 
-% 			for j = 1:trainingFace
-% 				img = imread(strcat(num2str(j),'.pgm'));
-% 				if size(img, 3) > 1
-% 					img = rgb2gray(img);
-% 				end
-% 				images(:,(i-1)*10+j) = reshape(img, size(img,1)*size(img,2), 1);
-% 			end
+%           for j = 1:trainingFace
+%               img = imread(strcat(num2str(j),'.pgm'));
+%               if size(img, 3) > 1
+%                   img = rgb2gray(img);
+%               end
+%               images(:,(i-1)*10+j) = reshape(img, size(img,1)*size(img,2), 1);
+%           end
 % 
-% 			cd ..;
-% 	    end
+%           cd ..;
+%       end
 % 
-% 	    cd ..;
-% 		images = uint8(images);
-% 	end
-% 	
-% 	databaseCreated = 1;
-% 	faceDatabase = images;
+%       cd ..;
+%       images = uint8(images);
+%   end
+%   
+%   databaseCreated = 1;
+%   faceDatabase = images;
 % end
