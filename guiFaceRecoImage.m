@@ -73,6 +73,7 @@ function varargout = guiFaceRecoImage_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
+% Selectionne une image selon les formats choisis
 % --- Executes on button press in originalImgButton.
 function originalImgButton_Callback(hObject, eventdata, handles)
 % hObject    handle to originalImgButton (see GCBO)
@@ -89,6 +90,7 @@ function originalImgButton_Callback(hObject, eventdata, handles)
     handles.img = img;
     guidata(hObject, handles);
 
+% Applique des filtres sur l'image selectionnée
 % --- Executes on selection change in filteredImgButton.
 function filteredImgButton_Callback(hObject, eventdata, handles)
 % hObject    handle to filteredImgButton (see GCBO)
@@ -98,7 +100,7 @@ function filteredImgButton_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns filteredImgButton contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from filteredImgButton
     global img
-    filtering = friFilter();
+    filtering = fwFilter();
     contents = cellstr(get(hObject, 'String'));
     choice = contents(get(hObject, 'Value'));
     if(strcmp(choice, 'Original'))
@@ -181,16 +183,16 @@ function recognizedImageButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+% Permet de reconnaitre l'image selectionnée dans la base de données
 % --- Executes on button press in recognizeImageButton.
 function recognizeImageButton_Callback(hObject, eventdata, handles)
 % hObject    handle to recognizeImageButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     global imagefilename;
-    friEig = friEigen('Dataset', imagefilename);
-    friEig = friEig.recognize();
+    fwEig = fwEigen('Dataset', imagefilename);
+    fwEig = fwEig.recognize();
     axes(handles.recognizedAxe);
-    imshow(friEig.matchedFace);
-    handles.friEig.matchFace = friEig.matchedFace;
+    imshow(fwEig.matchedFace);
+    handles.fwEig.matchFace = fwEig.matchedFace;
     guidata(hObject, handles);

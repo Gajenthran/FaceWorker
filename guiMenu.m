@@ -22,7 +22,7 @@ function varargout = guiMenu(varargin)
 
 % Edit the above text to modify the response to help guiMenu
 
-% Last Modified by GUIDE v2.5 11-Apr-2019 00:18:57
+% Last Modified by GUIDE v2.5 14-Apr-2019 21:58:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -73,16 +73,24 @@ function varargout = guiMenu_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in faceRecoImgButton.
-function faceRecoImgButton_Callback(hObject, eventdata, handles)
-% hObject    handle to faceRecoImgButton (see GCBO)
+% --- Executes on button press in filterButton.
+function filterButton_Callback(hObject, eventdata, handles)
+% hObject    handle to filterButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-guiFaceRecoImage
+    guiFilterFace;
 
-% --- Executes on button press in faceRecoVideoButton.
-function faceRecoVideoButton_Callback(hObject, eventdata, handles)
-% hObject    handle to faceRecoVideoButton (see GCBO)
+
+% --- Executes on button press in IRecognitionButton.
+function IRecognitionButton_Callback(hObject, eventdata, handles)
+% hObject    handle to IRecognitionButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    guiFaceRecoImage;
+
+% --- Executes on button press in VRecognitionButton.
+function VRecognitionButton_Callback(hObject, eventdata, handles)
+% hObject    handle to VRecognitionButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -92,4 +100,4 @@ function quitButton_Callback(hObject, eventdata, handles)
 % hObject    handle to quitButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-close all;
+    close all;

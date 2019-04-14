@@ -1,6 +1,8 @@
-classdef friFilter
+% Classe regroupant l'ensemble des filtres de l'application
+classdef fwFilter
     methods(Static)
-
+        % Vérifie si l'image est en nuance de gris
+        % Retourne true si c'est le cas sinon true
         function result = isGray(img)
             result = true
             if size(img, 3) > 1
@@ -8,9 +10,11 @@ classdef friFilter
             end
         end
 
+        % Transforme l'image en nuance de gris
         function grayImg = applyGrayscale(img)
             grayImg = img;
-            if friFilter.isGray(img) == false
+
+            if fwFilter.isGray(img) == false
                 R=img(:, :, 1);
                 G=img(:, :, 2);
                 B=img(:, :, 3);
@@ -27,8 +31,11 @@ classdef friFilter
             end
         end
 
+        % Transforme une image en binaire en son complément (c'est-à-dire 
+        % qu'on modifie les 0 en 1 et inversement). Si l'image n'est pas
+        % en binaire, on la transforme en binaire
         function complementBinaryImg = applyComplementBinary(img)
-            img = friFilter.applyBinary(img);
+            img = fwFilter.applyBinary(img);
             height = size(img, 1);
             width = size(img, 2);
             complementBinaryImg = zeros(height, width);
@@ -40,6 +47,7 @@ classdef friFilter
             end
         end
 
+        % Applique l'égalisation d'histogramme sur une image
         function histEqImg = applyHistEq(img)
             height = size(img, 1);
             width = size(img, 2);
@@ -76,9 +84,9 @@ classdef friFilter
             end
         end
         
-        
+        % Applique le filtre de Sobel sur une image
         function sobelImg = applySobel(img)
-            img = double(friFilter.applyGrayscale(img)); %% rgb2gray(img);
+            img = double(fwFilter.applyGrayscale(img));
             kernelX = [ 
                 -1, 0, 1;
                 -2, 0, 2;
@@ -107,16 +115,18 @@ classdef friFilter
                                 Gy = Gy + (kernelY(a, b) * img(i + a - 2, j + b - 2, k));
                             end
                         end
-                        sobelImg(i,j,k) = abs(Gx) + abs(Gy); % sqrt(Gx^2 + Gy^2);
+                        % on peut remplacer la formule par : sqrt(Gx^2 + Gy^2);
+                        sobelImg(i,j,k) = abs(Gx) + abs(Gy); 
                     end
                 end
             end
-
             sobelImg = abs(sobelImg)/255;
         end
         
+
+        % Applique le filtre de Prewitt sur une image
         function prewittImg = applyPrewitt(img)
-            img = double(friFilter.applyGrayscale(img)); % rgb2gray(img);
+            img = double(fwFilter.applyGrayscale(img)); % rgb2gray(img);
             kernelX = 1/3 * [-1, 0, 1;  -1, 0, 1; -1, 0, 1];
             kernelY = 1/3 * [-1, -1, -1;  0, 0, 0; 1, 1, 1];
 
@@ -144,6 +154,7 @@ classdef friFilter
             prewittImg = abs(prewittImg)/255;
         end
     
+        % Applique le filtre de Sepia sur une image
         function sepiaImg = applySepia(img)
             sepiaImg = img;
             R=img(:, :, 1);
@@ -161,6 +172,7 @@ classdef friFilter
             sepiaImg(:, :, 3) = newB;
         end
 
+        % Augmente la luminosité d'une image
         function brightnessImg = applyBrightness(img, value)
             if value < 0
                 value = 30;
@@ -169,8 +181,9 @@ classdef friFilter
             brightnessImg = img + value;
         end
 
+        % Applique le filtre de Laplacian sur une image
         function laplacianImg = applyLaplacian(img)
-            img = double(friFilter.applyGrayscale(img)) % rgb2gray(img);
+            img = double(fwFilter.applyGrayscale(img)) % rgb2gray(img);
             height = size(img, 1);
             width = size(img, 2);
             laplacianImg = img;
@@ -193,9 +206,8 @@ classdef friFilter
             end
         end
 
-
         function sharpenImg = applySharpen(img)
-            img = double(friFilter.applyGrayscale(img)) % rgb2gray(img);
+            img = double(fwFilter.applyGrayscale(img)) % rgb2gray(img);
             height = size(img, 1);
             width = size(img, 2);
             sharpenImg = img;
@@ -218,8 +230,9 @@ classdef friFilter
             end
         end
 
+        % Applique le filtre moyenneur sur une image
         function averageImg = applyAverage(img)
-            img = double(friFilter.applyGrayscale(img));
+            img = double(fwFilter.applyGrayscale(img));
             height = size(img, 1);
             width = size(img, 2);
             averageImg = zeros(height, width, 'uint8');
@@ -231,8 +244,9 @@ classdef friFilter
             end
         end
 
+        % Applique le filtre médian sur une image
         function medianImg = applyMedian(img)
-            img = double(friFilter.applyGrayscale(img));
+            img = double(fwFilter.applyGrayscale(img));
             height = size(img, 1);
             width = size(img, 2);
             medianImg = zeros(height, width, 'uint8');
@@ -246,6 +260,7 @@ classdef friFilter
             end
         end
 
+        % Inverse les couleurs d'une image
         function invertImg = applyInvert(img)
             invertImg = img;
             R=img(:, :, 1);
@@ -261,6 +276,7 @@ classdef friFilter
             invertImg(:, :, 3) = newB;
         end
 
+        % Applique un tourbillon sur une image
         function swirlImg = applySwirl(img, degValue)
             % On limite les valeurs à 100 pour reconnaitre un minimum l'image
             degree = min(max(0, degValue), 100) / 1000.0;
@@ -334,6 +350,7 @@ classdef friFilter
             end
         end
 
+        % 
         function [matX, matY] = myMeshgrid(x, y)
             rows = length(y);
             columns = length(x);
@@ -345,8 +362,9 @@ classdef friFilter
             end
         end
 
+        % Applique le filtre bilateral sur une couleur
         function channelValue = bilateralChannel(wSz, sigmaR, sigmaS, channel)
-            [X, Y] = friFilter.myMeshgrid(-wSz:wSz, -wSz:wSz);
+            [X, Y] = fwFilter.myMeshgrid(-wSz:wSz, -wSz:wSz);
             domainFilter = exp(-(X.^2+Y.^2)/(2*sigmaS^2));
             height = size(channel, 1);
             width = size(channel, 2);
@@ -368,6 +386,7 @@ classdef friFilter
             end
         end
 
+        % Applique le filtre bilateral sur une image en couleur
         function bImg = applyBilateralRGB(img)
             img = double(img);
             img = img/255;
@@ -378,19 +397,20 @@ classdef friFilter
             B=img(:, :, 3);
 
             wSz = 9;
-            newR = friFilter.bilateralChannel(wSz, 30, 1, R);
-            newG = friFilter.bilateralChannel(wSz, 30, 1, G);
-            newB = friFilter.bilateralChannel(wSz, 30, 1, B);
+            newR = fwFilter.bilateralChannel(wSz, 30, 1, R);
+            newG = fwFilter.bilateralChannel(wSz, 30, 1, G);
+            newB = fwFilter.bilateralChannel(wSz, 30, 1, B);
 
             bImg(:, :, 1) = newR;
             bImg(:, :, 2) = newG;
             bImg(:, :, 3) = newB;
         end
- 
+
+        % Transforme l'image en binaire (constitué seulement de noir et blanc)
         function binaryImg = applyBinary(img)
             height = size(img, 1); 
             width = size(img, 2); 
-            if friFilter.isGray(img) == false
+            if fwFilter.isGray(img) == false
                 img = rgb2gray(img);
             end
 
@@ -417,6 +437,7 @@ classdef friFilter
             end
         end
         
+        % Obtient le mirroir d'une image
         function mirrorImg = applyMirror(img)
             height = size(img, 1);
             width = size(img, 2);

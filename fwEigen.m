@@ -1,19 +1,24 @@
-classdef friEigen
+% Classe permettant de reconnaitre une image dans la base 
+% de donnees en utilisant la methode d'Eigenfaces
+classdef fwEigen
 	properties
-		faceDatabasePath;
-		faceDatabase;
-		faceDatabaseSignature;
-		testPath;
-		testImage;
-		V;
-		matchedFaceIndex;
-		matchedFace;
-		meanValue;
-		fileCreated
+		faceDatabasePath; % chemin menant vers la base de donnees
+		faceDatabase; % les images presents dans la base de donnees
+		faceDatabaseSignature; % les valeurs des images dans la base de donnees
+		testPath; % chemin menant vers l'image a reconnaitre
+		testImage; % l'image a reconnaitre
+		V; % eigenvalue afin de reconnaitre l'image
+		matchedFaceIndex; % l'indice de l'image reconnue dans la base de donnees
+		matchedFace; % l'image reconnue dans la base de donnees
+		meanValue; % la valeur moyenne
+		fileCreated; % booleen pour savoir si une nouvelle image a ete creee
+		% NB : Si le fichier a reconnaitre n'est pas dans le bon format (.pgm), on convertit le fichier
+		% en .pgm. Une fois l'application terminee, il faut supprimer le fichier cree.
 	end
 
 	methods
-		function obj = friEigen(faceDatabasePath, testPath) 
+		% Constructeur : generation de la base de donnees et de l'image a reconnaitre
+		function obj = fwEigen(faceDatabasePath, testPath) 
 			obj.faceDatabasePath = faceDatabasePath;
 			obj.testPath = testPath;
 			obj.fileCreated = 0;
@@ -21,6 +26,7 @@ classdef friEigen
 			[obj.testImage, obj.testPath, obj.fileCreated] = obj.loadTestImage(obj.testPath);
 		end
 		
+		% Reconnaissance de l'image grace a la base de donnees
 		function obj = recognize(obj)
 			rImgSignature = 20;
 			faceImages = uint8(ones(1,size(obj.faceDatabase,2)));
@@ -46,6 +52,7 @@ classdef friEigen
 	end
 	
 	methods (Access = 'private')
+		% Retourne l'image dans la BDD qui matche avec l'image selectionnee
 		function matchedFaceIndex = getMatchedFace(obj, N, faceDbS, s)
 			weightFaces = [];
 			for i = 1:N
@@ -60,14 +67,18 @@ classdef friEigen
 			end
 		end
 
+		% Transforme l'image pour faciliter le deroulement d'Eigenfaces
 		function destImg = transformImage(obj, srcImg)
-			srcImg = friFilter.applyGrayscale(srcImg);
+			srcImg = fwFilter.applyGrayscale(srcImg);
 			% srcImg = obj.cropFace(srcImg);
 			srcImg = imresize(srcImg, [112, 92]);
 			srcImg = reshape(srcImg, size(srcImg,1) * size(srcImg,2), 1);
 			destImg = uint8(srcImg);
 		end
 
+		% Detecte le visage dans l'image et coupe l'image pour conserver
+		% seulement le visage. 
+		% Pour l'instant, inutiliser.
 		function destImg = cropFace(obj, srcImg)
 			ObjectDetector = vision.CascadeObjectDetector;
 			inObject = step(ObjectDetector, srcImg);
@@ -81,6 +92,7 @@ classdef friEigen
 			end
 		end
 
+		% Convertit l'image en .pgm 
 		function [outputFile, fileCreated] = convert2pgm(obj, filename)
 			[filepath, name, ext] = fileparts(filename);
 			fileCreated = 0;
@@ -93,12 +105,14 @@ classdef friEigen
 			end
 		end
 			  
+		% Charge l'image a tester
 		function [testImage, testPath, fileCreated] = loadTestImage(obj, pathName)
 			[testPath, fileCreated] = obj.convert2pgm(pathName);
 			testImage = imread(testPath);
 			testImage = obj.transformImage(testImage);
 		end
 
+		% Charge les images presents dans la base de donnees
 		function faceDatabase = loadFaceDatabase(obj, pathName)
 			persistent databaseCreated;
 			persistent images;
@@ -133,6 +147,9 @@ classdef friEigen
 			faceDatabase = images;
 		end
 
+		% Charge les images presents dans la base de donnees grace 
+		% a la commande cd (change directory)
+		% Inutiliser car remplacer par loadFaceDatabase
 		function faceDatabase = loadFaceDatabaseCD(obj, pathName)
 			persistent databaseCreated;
 			persistent images;
@@ -171,126 +188,3 @@ classdef friEigen
 		end
 	end
 end
-
-% faceDatabase = loadFaceDatabase('Dataset');
-% 
-% [randomImage, pathName, fileCreated] = loadTestImage('test.jpg');
-% 
-% rImgSignature = 20;
-% faceImages = uint8(ones(1,size(faceDatabase,2)));
-% meanValue = uint8(mean(faceDatabase,2));
-% meanDatabase = faceDatabase - uint8(single(meanValue)*single(faceImages));
-% 
-% L = single(meanDatabase)' * single(meanDatabase);
-% [V,D] = eig(L);
-% V = single(meanDatabase) * V;
-% V = V(:,end:-1:end-(rImgSignature-1));
-% 
-% faceDatabaseSignature = zeros(size(faceDatabase,2), rImgSignature);
-% for i = 1:size(faceDatabase, 2)
-%   faceDatabaseSignature(i,:) = single(meanDatabase(:,i))'*V;
-% end
-% 
-% subplot(121);
-% imshow(reshape(randomImage,112,92));
-% title('Looking for this Face','FontWeight','bold','Fontsize',16,'color','red');
-% 
-% s = single(randomImage - meanValue)'*V;
-% 
-% matchFaceIndex = getMatchedFace(size(faceDatabase, 2), faceDatabaseSignature, s);
-% subplot(122);
-% imshow(reshape(faceDatabase(:,matchFaceIndex), 112, 92));
-% title('Recognition Completed','FontWeight','bold','Fontsize',16,'color','red');
-% 
-% deleteCreatedFile(fileCreated, pathName);
-
-
-% function matchFaceIndex = getMatchedFace(N, faceDbS, s)
-%   weightFaces = [];
-%   for i = 1:N
-%       weightFaces = [weightFaces, norm(faceDbS(i, :)-s, 2)];
-%   end
-%   [minWeight, matchFaceIndex] = min(weightFaces);
-% end
-% 
-% function [] = deleteCreatedFile(fileCreated, pathName)
-%   if fileCreated == 1
-%       delete(pathName)
-%   end
-% end
-% 
-% function destImg = transformImage(srcImg)
-%   srcImg = friFilter.applyGrayscale(srcImg); % A VERIFIER
-%   srcImg = cropFace(srcImg);
-%   srcImg = imresize(srcImg, [112, 92]);
-%   srcImg = reshape(srcImg, size(srcImg,1) * size(srcImg,2),1);
-%   destImg = uint8(srcImg);
-% end
-% 
-% function destImg = cropFace(srcImg)
-%   ObjectDetector = vision.CascadeObjectDetector;
-%   inObject = step(ObjectDetector, srcImg);
-%   [height, width] = size(srcImg);
-%   destImg = srcImg;
-%   if isempty(inObject) == true && height ~= 112 && width ~= 92
-%       disp("It is not a face !");
-%       close all;
-%   elseif isempty(inObject) == false && height > 150 && width > 100
-%       destImg = imcrop(srcImg, inObject(1, :));
-%   end
-% end
-% 
-% function [outputFile, fileCreated] = convert2pgm(filename)
-%   [filepath, name, ext] = fileparts(filename);
-%   fileCreated = 0;
-%   outputFile = filename;
-%   if strcmp(ext, '.pgm') == false
-%       pgmFile = strrep(filename, ext,'.pgm');
-%       copyfile(filename, pgmFile);
-%       outputFile = pgmFile;
-%       fileCreated = 1;
-%   end
-% end
-%       
-% function [testImage, testPath, fileCreated] = loadTestImage(pathName)
-%   [testPath, fileCreated] = convert2pgm(pathName);
-%   testImage = imread(testPath);
-%   testImage = transformImage(testImage);
-% end
-% 
-%   
-% function faceDatabase = loadFaceDatabase(pathName)
-%   persistent databaseCreated;
-%   persistent images;
-% 
-%   imgW = 92; 
-%   imgH = 112;
-%   trainingFace = 10;
-% 
-%   if(isempty(databaseCreated))
-%       cd(pathName);
-%       dbFolder = dir;
-%       nbFolder = length(dbFolder)-2;
-%       images = zeros(imgH * imgW, nbFolder);
-% 
-%       for i = 1:nbFolder
-%           cd(strcat('s',num2str(i)));
-% 
-%           for j = 1:trainingFace
-%               img = imread(strcat(num2str(j),'.pgm'));
-%               if size(img, 3) > 1
-%                   img = rgb2gray(img);
-%               end
-%               images(:,(i-1)*10+j) = reshape(img, size(img,1)*size(img,2), 1);
-%           end
-% 
-%           cd ..;
-%       end
-% 
-%       cd ..;
-%       images = uint8(images);
-%   end
-%   
-%   databaseCreated = 1;
-%   faceDatabase = images;
-% end
