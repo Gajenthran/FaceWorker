@@ -55,13 +55,11 @@ classdef fwFilter
 
             nbPixels = height*width;
             occ = zeros(256,1);
-            prob_occ = zeros(256,1);
 
             for i = 1:height
                 for j = 1:width
                     pix = img(i,j);
                     occ(pix+1) = occ(pix+1)+1;
-                    prob_occ(pix+1) = occ(pix+1)/nbPixels;
                 end
             end
 
@@ -70,7 +68,7 @@ classdef fwFilter
             hist = zeros(256,1);
             sum = 0;
 
-            for i = 1:size(prob_occ)
+            for i = 1:size(occ)
                 sum = sum + occ(i);
                 cum(i) = sum;
                 prob_cum(i) = cum(i)/nbPixels;
@@ -102,7 +100,6 @@ classdef fwFilter
             height = size(img,1);
             width = size(img,2);
             channel = size(img,3);
-            % sobelImg = zeros(height, width);
             
             for i = 2:height - 1
                 for j = 2:width - 1
@@ -123,7 +120,6 @@ classdef fwFilter
             sobelImg = abs(sobelImg)/255;
         end
         
-
         % Applique le filtre de Prewitt sur une image
         function prewittImg = applyPrewitt(img)
             img = double(fwFilter.applyGrayscale(img)); % rgb2gray(img);
@@ -165,8 +161,6 @@ classdef fwFilter
             newG = (R * .349) + (G * .686) + (B * .168);
             newB = (R * .272) + (G * .534) + (B * .131);
 
-            height = size(img, 1);
-            width = size(img, 2);
             sepiaImg(:, :, 1) = newR;
             sepiaImg(:, :, 2) = newG;
             sepiaImg(:, :, 3) = newB;
@@ -350,62 +344,6 @@ classdef fwFilter
             end
         end
 
-        % 
-        function [matX, matY] = myMeshgrid(x, y)
-            rows = length(y);
-            columns = length(x);
-            matX = zeros(rows, columns);
-            matY = zeros(rows, columns);
-            for i = 1:columns
-                matX(:, i) = x(i);
-                matY(:, i) = y;
-            end
-        end
-
-        % Applique le filtre bilateral sur une couleur
-        function channelValue = bilateralChannel(wSz, sigmaR, sigmaS, channel)
-            [X, Y] = fwFilter.myMeshgrid(-wSz:wSz, -wSz:wSz);
-            domainFilter = exp(-(X.^2+Y.^2)/(2*sigmaS^2));
-            height = size(channel, 1);
-            width = size(channel, 2);
-            channelValue = zeros(size(channel));
-            for i=1:height
-                for j=1:width
-
-                    iMin=max(i-wSz,1);
-                    iMax=min(i+wSz,height);
-                    jMin=max(j-wSz,1);
-                    jMax=min(j+wSz,width);
-
-                    I=channel(iMin:iMax,jMin:jMax);
-                    rangeFilter=exp(-(I-channel(i,j)).^2/(2*sigmaR^2));
-                    bFilter=rangeFilter.*domainFilter((iMin:iMax)-i+wSz+1,(jMin:jMax)-j+wSz+1);
-                    fNorm=sum(bFilter(:));
-                    channelValue(i,j)=sum(sum(bFilter.*I))/fNorm;
-                end
-            end
-        end
-
-        % Applique le filtre bilateral sur une image en couleur
-        function bImg = applyBilateralRGB(img)
-            img = double(img);
-            img = img/255;
-            bImg = img;
-
-            R=img(:, :, 1);
-            G=img(:, :, 2);
-            B=img(:, :, 3);
-
-            wSz = 9;
-            newR = fwFilter.bilateralChannel(wSz, 30, 1, R);
-            newG = fwFilter.bilateralChannel(wSz, 30, 1, G);
-            newB = fwFilter.bilateralChannel(wSz, 30, 1, B);
-
-            bImg(:, :, 1) = newR;
-            bImg(:, :, 2) = newG;
-            bImg(:, :, 3) = newB;
-        end
-
         % Transforme l'image en binaire (constitué seulement de noir et blanc)
         function binaryImg = applyBinary(img)
             height = size(img, 1); 
@@ -437,6 +375,20 @@ classdef fwFilter
             end
         end
         
+
+        % Agrandissement de l'image selon un facteur d'echelle donne
+        function interpolationBImg = applyInterpolationB(img)
+            S = 2;
+            height = size(img, 1) * S;
+            width = size(img, 2) * S;
+
+            for i = 1:height
+                for j = 1:width
+                    interpolationBImg(i, j, :) = img(ceil(i/S), ceil(j/S), :);
+                end
+            end
+        end
+
         % Obtient le mirroir d'une image
         function mirrorImg = applyMirror(img)
             height = size(img, 1);
@@ -452,5 +404,79 @@ classdef fwFilter
                 end
             end
         end
+
+        function [matX, matY] = myMeshgrid(x, y)
+            rows = length(y);
+            columns = length(x);
+            matX = zeros(rows, columns);
+            matY = zeros(rows, columns);
+            for i = 1:columns
+                matX(:, i) = x(i);
+                matY(:, i) = y;
+            end
+        end
+
+        % Applique le filtre bilateral sur une couleur
+        function channelValue = bilateralChannel(wSz, sigmaR, sigmaS, channel)
+            [X, Y] = fwFilter.myMeshgrid(-wSz:wSz, -wSz:wSz);
+            domainFilter = exp(-(X.^2+Y.^2)/(2*sigmaS^2));
+            height = size(channel, 1);
+            width = size(channel, 2);
+            channelValue = zeros(size(channel));
+            for i=1:height
+                for j=1:width
+
+                    iMin = max(i - wSz, 1);
+                    iMax = min(i + wSz, height);
+                    jMin = max(j - wSz, 1);
+                    jMax = min(j + wSz, width);
+
+                    I = channel(iMin:iMax, jMin:jMax);
+                    rangeFilter = exp(-(I-channel(i,j)).^2/(2*sigmaR^2));
+                    bFilter = rangeFilter.*domainFilter((iMin:iMax)-i+wSz+1,(jMin:jMax)-j+wSz+1);
+                    fNorm = sum(bFilter(:));
+                    channelValue(i, j) = sum(sum(bFilter.*I))/fNorm;
+                end
+            end
+        end
+
+        % Applique le filtre bilateral sur une image en couleur
+        function bImg = applyBilateralRGB(img)
+            img = double(img);
+            img = img/255;
+            bImg = img;
+
+            R = img(:, :, 1);
+            G = img(:, :, 2);
+            B = img(:, :, 3);
+
+            wSz = 5;
+            newR = fwFilter.bilateralChannel(wSz, 32, 1, R);
+            newG = fwFilter.bilateralChannel(wSz, 32, 1, G);
+            newB = fwFilter.bilateralChannel(wSz, 32, 1, B);
+
+            bImg(:, :, 1) = newR;
+            bImg(:, :, 2) = newG;
+            bImg(:, :, 3) = newB;
+        end
+
+        % Applique une rotation sur une image selon l'angle a
+        function rotatedImg = applyRotation(img, a)
+            [height, width, channel] = size(img);
+            nH = height * sqrt(2);
+            nW = width * sqrt(2);
+
+            for i = 1:nH
+               for j = 1:nW
+                  x = uint16((i-nH/2) * cos(a)+(j-nW/2) * sin(a) + height/2);
+                  y = uint16(-(i-nH/2) * sin(a)+(j-nW/2) * cos(a) + width/2);
+
+                  if x > 0 && y > 0 && x <=height && y <= width
+                     rotatedImg(i, j, :)=img(x, y, :);
+                  end
+               end
+            end
+        end
+
     end
 end

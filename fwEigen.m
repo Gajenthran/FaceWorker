@@ -7,7 +7,7 @@ classdef fwEigen
 		faceDatabaseSignature; % les valeurs des images dans la base de donnees
 		testPath; % chemin menant vers l'image a reconnaitre
 		testImage; % l'image a reconnaitre
-		V; % eigenvalue afin de reconnaitre l'image
+		V; % eigenvectors afin de reconnaitre l'image
 		matchedFaceIndex; % l'indice de l'image reconnue dans la base de donnees
 		matchedFace; % l'image reconnue dans la base de donnees
 		meanValue; % la valeur moyenne
@@ -48,7 +48,6 @@ classdef fwEigen
 			obj.matchedFace = reshape(obj.faceDatabase(:,obj.matchedFaceIndex), 112, 92);
 			obj.deleteCreatedFile(obj.fileCreated, obj.testPath);
 		end
-
 	end
 	
 	methods (Access = 'private')
@@ -126,7 +125,7 @@ classdef fwEigen
 				nbFolder = length(dbFolder)-2;
 				images = zeros(imgW * imgH, nbFolder)
 
-				for i= 1:size(faceSet,2)
+				for i = 1:size(faceSet,2)
 					for j = 1:faceSet(i).Count
 						img = read(faceSet(i), j);
 						[height, width] = size(img);

@@ -26,7 +26,7 @@ function varargout = guiFilterFace(varargin)
 
 % Edit the above text to modify the response to help guiFilterFace
 
-% Last Modified by GUIDE v2.5 14-Apr-2019 21:37:39
+% Last Modified by GUIDE v2.5 15-Apr-2019 21:26:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,6 +57,8 @@ function guiFilterFace_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to guiFilterFace (see VARARGIN)
     global cumulate;
     global filtering;
+    global a;
+    global bright;
     % Choose default command line output for guiFilterFace
     handles.output = hObject;
 
@@ -64,6 +66,8 @@ function guiFilterFace_OpeningFcn(hObject, eventdata, handles, varargin)
     guidata(hObject, handles);
     cumulate = 0;
     filtering = fwFilter();
+    a = 45;
+    bright = 20;
 
 % UIWAIT makes guiFilterFace wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -138,29 +142,30 @@ function sobelButton_Callback(hObject, eventdata, handles)
     if cumulate == 0
         filteredImg = img;
     end
-    
+
     filteredImg = filtering.applySobel(filteredImg);
     axes(handles.filteredAxe);
     imshow(filteredImg);
     handles.filteredImg = filteredImg;
     guidata(hObject, handles);
 
-% Applique le filtre de Prewitt sur l'image
-% --- Executes on button press in prewittButton.
-function prewittButton_Callback(hObject, eventdata, handles)
-% hObject    handle to prewittButton (see GCBO)
+% Applique le filtre de tourbillon sur l'image
+% --- Executes on button press in swirlButton.
+function swirlButton_Callback(hObject, eventdata, handles)
+% hObject    handle to swirlButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     global filtering;
     global filteredImg;
     global img;
     global cumulate;
+    global a;
 
     if cumulate == 0
         filteredImg = img;
     end
     
-    filteredImg = filtering.applyPrewitt(filteredImg);
+    filteredImg = filtering.applySwirl(filteredImg, a);
     axes(handles.filteredAxe);
     imshow(filteredImg);
     handles.filteredImg = filteredImg;
@@ -187,22 +192,23 @@ function heqButton_Callback(hObject, eventdata, handles)
     handles.filteredImg = filteredImg;
     guidata(hObject, handles); 
 
-% Inverse les couleurs de l'image
-% --- Executes on button press in invertButton.
-function invertButton_Callback(hObject, eventdata, handles)
-% hObject    handle to invertButton (see GCBO)
+% Augmente la luminosite de l'image
+% --- Executes on button press in brightnessButton.
+function brightnessButton_Callback(hObject, eventdata, handles)
+% hObject    handle to brightnessButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     global filtering;
     global filteredImg;
     global img;
     global cumulate;
+    global bright
   
     if cumulate == 0
         filteredImg = img;
     end
     
-    filteredImg = filtering.applyInvert(filteredImg);
+    filteredImg = filtering.applyBrightness(filteredImg, bright);
     axes(handles.filteredAxe);
     imshow(filteredImg);
     handles.filteredImg = filteredImg;
@@ -297,14 +303,16 @@ function otherFiltersPopup_Callback(hObject, eventdata, handles)
 
     if(strcmp(choice, 'Sepia'))
         filteredImg = filtering.applySepia(filteredImg);
-    elseif(strcmp(choice, 'Swirl'))
-        filteredImg = filtering.applySwirl(filteredImg, 50);
+    elseif(strcmp(choice, 'Prewitt'))
+        filteredImg = filtering.applyPrewitt(filteredImg);
+    elseif(strcmp(choice, 'Rotate'))
+        filteredImg = filtering.applyRotation(filteredImg, 0.25);
     elseif(strcmp(choice, 'Bilateral'))
         filteredImg = filtering.applyBilateralRGB(filteredImg);
     elseif(strcmp(choice, 'Laplacian'))
         filteredImg = filtering.applyLaplacian(filteredImg);
-    elseif(strcmp(choice, 'Brightness'))
-        filteredImg = filtering.applyBrightness(filteredImg, 50);
+    elseif(strcmp(choice, 'Invert'))
+        filteredImg = filtering.applyInvert(filteredImg);
     elseif(strcmp(choice, 'Binary'))
         filteredImg = filtering.applyBinary(filteredImg);
     elseif(strcmp(choice, 'Complement Binary'))
@@ -313,6 +321,8 @@ function otherFiltersPopup_Callback(hObject, eventdata, handles)
         filteredImg = filtering.applyMirror(filteredImg);
     elseif(strcmp(choice, 'Sharpen'))
         filteredImg = filtering.applySharpen(filteredImg);
+    elseif(strcmp(choice, 'Interpolation Bilinear'))
+        filteredImg = filtering.applyInterpolationB(filteredImg);
     end
 
     axes(handles.filteredAxe);
@@ -345,3 +355,50 @@ function cumulateButton_Callback(hObject, eventdata, handles)
     global cumulate;
     cumulate = get(handles.cumulateButton, 'Value');
     disp(cumulate);
+
+% Slider pour modifier la luminosite de l'image
+% --- Executes on slider movement.
+function brightnessSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to brightnessSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+    global bright;
+    bright = get(handles.brightnessSlider, 'Value');
+
+
+% --- Executes during object creation, after setting all properties.
+function brightnessSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to brightnessSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+% Slider pour modifier le degre du tourbillon qui s'applique sur l'image
+% --- Executes on slider movement.
+function swirlSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to swirlSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+    global a;
+    a = get(handles.swirlSlider, 'Value');
+
+% --- Executes during object creation, after setting all properties.
+function swirlSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to swirlSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
