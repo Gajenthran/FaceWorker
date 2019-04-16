@@ -175,7 +175,7 @@ classdef fwFilter
             brightnessImg = img + value;
         end
 
-        % Applique le filtre de Laplacian sur une image
+        % Applique le filtre de Laplacien sur une image
         function laplacianImg = applyLaplacian(img)
             img = double(fwFilter.applyGrayscale(img)) % rgb2gray(img);
             height = size(img, 1);
