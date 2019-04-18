@@ -10,7 +10,7 @@ La dernière option, est malheureusement encore en cours d’implémentation car
 
 Il existe 18 filtres différents dont les filtres passe haut, passe bas ou des filtres utilisant les histogrammes mais pas seulement (une liste exhaustive est donnée plus bas). Il est également possible de cumuler différents filtres et ainsi de rajouter un second filtre par-dessus un premier filtre. 
 Enfin, une option de sauvegarde d'image a été ajoutée, ce qui crée un nouveau fichier utilisable par la suite dont le nom commence par ```fw``` avec le même format de l'image sélectionnée.
-\newline
+
 Voici la liste des 18 filtres dans notre application : 
 - nuance de gris 
 - binaire 
@@ -30,7 +30,7 @@ Voici la liste des 18 filtres dans notre application :
 - interpolation bilinéaire
 - miroir
 
-## IRecognition
+## IRecognition
 
 Cette fonctionnalité permet de reconnaitre une image parmi une base de données à l'aide de la méthode Eigenfaces.
 Les eigenfaces sont un ensemble de vecteurs propres utilisés dans le domaine de la vision artificielle afin de résoudre le problème de la reconnaissance du visage humain. Le recours à des eigenfaces pour la reconnaissance a été développé par Sirovich et Kirby (1987) et utilisé par Matthew Turk et Alex Pentland pour la classification de visages. Cette méthode est considérée comme le premier exemple réussi de technologie de reconnaissance faciale. Ces vecteurs propres sont dérivés de la matrice de covariance de la distribution de probabilité de l'espace vectoriel de grande dimension des possibles visages d'êtres humains (source: Wikipedia). 
@@ -43,6 +43,6 @@ Les fonctions concernant Eigenfaces se trouvent dans le fichier ```fwEigen.m``` 
 
 Pour le moment le ```VRecognition``` est en cours de développement, le principe est de reconnaître le visage en temps réel (via une webcam) à partir des cartes auto adaptatives (SOM, également appelé cartes de Kohonen).
 
-## En savoir plus
+## En savoir plus
 
 Pour en savoir plus sur les fonctionnalités de l'application, vous pouvez également consulter le fichier ```framework.pdf```.
